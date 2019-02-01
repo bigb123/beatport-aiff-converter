@@ -1,5 +1,5 @@
 # Beatport aiff converter
-Script that uses ffmpeg to convert big and uncompressed aiff files downloaded from Beatport to loseless files (including cover art).
+Script that uses ffmpeg to convert big and uncompressed aiff files downloaded from Beatport to lossless files (including cover art).
 
 It can convert it to flac or Apple alac (in m4a container). It uses metaflac or mp4art to apply cover art.
 

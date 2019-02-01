@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Script to convert aiff files downloaded from Beatport to loseless format (with covers).
+# Script to convert aiff files downloaded from Beatport to lossless format (with covers).
 # It uses ffmpeg (that not deals with covers during conversion), metaflac to
 # apply covers to flac file and mp4art in case of alac files (m4a container).
 #
@@ -32,7 +32,7 @@ fi
 # usage description
 usage () {
   echo
-  echo "Script to convert aiff files (downloaded from Beatport) to loseless format like flac or alac (m4a container). If no argument specified files will be converted to alac"
+  echo "Script to convert aiff files (downloaded from Beatport) to lossless format like flac or alac (m4a container). If no argument specified files will be converted to alac"
   echo
   echo "Usage:"
   echo "$0 [flac|alac|both]"
