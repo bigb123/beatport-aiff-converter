@@ -32,7 +32,9 @@ fi
 # usage description
 usage () {
   echo
-  echo "Script to convert aiff files (downloaded from Beatport) to lossless format like flac or alac (m4a container). If no argument specified files will be converted to alac"
+  echo "Script to convert aiff files (downloaded from Beatport) to lossless format"
+  echo "like flac or alac (m4a container). If no argument specified files will be "
+  echo "converted to alac."
   echo
   echo "Usage:"
   echo "$0 [flac|alac|both]"
