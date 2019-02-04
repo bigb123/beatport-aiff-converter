@@ -60,7 +60,7 @@ flac_convert() {
   ffmpeg -i "$filename" "$flac_filename"
 
   # Test how many streams with images are in the audio file.
-  if [ $(ffmpeg -i "$filename" 2>&1 | grep "Stream #0:3: Video" &>/dev/null; echo $?) -eq 0 ]; then
+  if [ $(ffprobe "$filename" 2>&1 | grep "Stream #0:3: Video" &>/dev/null; echo $?) -eq 0 ]; then
     # There are 3 streams. That means:
     # - the 1st one is "A bright coloured fish"
     # - 2nd is Publisher/Studio logotype
