@@ -4,22 +4,9 @@
 # It uses ffmpeg (that not deals with covers during conversion), metaflac to
 # apply covers to flac file and mp4art in case of alac files (m4a container).
 #
-# Streams with images available in files from Beatport: (for type numbers
-# reference read "metaflac -h":
-#
-# stream 1 - A bright coloured fish - type 17
-# stream 2 - Publisher/Studio logotype - type 20
-# stream 3 - Cover (front)  - type 3
-#
-# or
-#
-# stream 1 - A bright coloured fish - type 17
-# stream 2 - Cover (front)  - type 3
-#
-# In case of alac it's just simple apply cover art to file with no others arts.
-#
 # Script requirements:
 # - ffmpeg
+# - jq
 # - metaflac (optionally)
 # - mp4v2 (optionally)
 
@@ -41,6 +28,16 @@ usage () {
   echo
 }
 
+cover_extractor() {
+  ffmpeg -i "$filename" -map 0:$( \
+    ffprobe \
+      -loglevel quiet \
+      -print_format json \
+      -hide_banner \
+      -select_streams v \
+      -show_streams "$filename" | jq '.streams[] | if .tags.comment == "Cover (front)" then .index else empty end') "$pic_name"
+}
+
 ###
 #
 # FLAC
@@ -59,48 +56,11 @@ flac_convert() {
   # Convert file to .flac
   ffmpeg -i "$filename" "$flac_filename"
 
-  # Test how many streams with images are in the audio file.
-  if [ $(ffprobe "$filename" 2>&1 | grep "Stream #0:3: Video" &>/dev/null; echo $?) -eq 0 ]; then
-    # There are 3 streams. That means:
-    # - the 1st one is "A bright coloured fish"
-    # - 2nd is Publisher/Studio logotype
-    # - 3rd is Cover (front)
-
-    # Cover (front)  - type 3
-    pic_name="cover.mjpeg"
-    ffmpeg -i "$filename" -map 0:3 "$pic_name"
-    metaflac --import-picture-from="3||||$pic_name" "$flac_filename"
-    rm "$pic_name"
-
-    # Publisher/Studio logotype - type 20
-    pic_name="logotype.mjpeg"
-    ffmpeg -i "$filename" -map 0:2 "$pic_name"
-    metaflac --import-picture-from="20||||$pic_name" "$flac_filename"
-    rm "$pic_name"
-
-    # A bright coloured fish - type 17
-    pic_name="bright_coloured_fish.png"
-    ffmpeg -i "$filename" -map 0:1 "$pic_name"
-    metaflac --import-picture-from="17||||$pic_name" "$flac_filename"
-    rm "$pic_name"
-
-  else
-    # There are only 2 streams:
-    # - the 1st one is "A bright coloured fish"
-    # - 2nd is Cover (front)
-    # A bright coloured fish - type 17
-
-    # Cover (front)  - type 3
-    pic_name="cover.mjpeg"
-    ffmpeg -i "$filename" -map 0:2 "$pic_name"
-    metaflac --import-picture-from="3||||$pic_name" "$flac_filename"
-    rm "$pic_name"
-
-    pic_name="bright_coloured_fish.png"
-    ffmpeg -i "$filename" -map 0:1 "$pic_name"
-    metaflac --import-picture-from="17||||$pic_name" "$flac_filename"
-    rm "$pic_name"
-  fi
+  # Find stream with cover art
+  pic_name="cover.mjpeg"
+  cover_extractor "$filename" "$pic_name"
+  metaflac --import-picture-from="3||||$pic_name" "$flac_filename"
+  rm "$pic_name"
 }
 
 
@@ -124,25 +84,11 @@ alac_convert() {
   # to avoid it as it makes problems with cover art display in Mac Finder)
   ffmpeg -i "$filename" -acodec alac -vn "$alac_filename"
 
-  # Test how many streams with images are in the audio file.
-  if [ $(ffmpeg -i "$filename" 2>&1 | grep "Stream #0:3: Video" &>/dev/null; echo $?) -eq 0 ]; then
-    # There are 3 streams and the last one is cover art.
-
-    # Cover (front)
-    pic_name="cover.mjpeg"
-    ffmpeg -i "$filename" -map 0:3 "$pic_name"
-    mp4art --add "$pic_name" "$alac_filename"
-    rm "$pic_name"
-
-  else
-    # There are only 2 streams and second one is a cover art.
-
-    # Cover (front)
-    pic_name="cover.mjpeg"
-    ffmpeg -i "$filename" -map 0:2 "$pic_name"
-    mp4art --add "$pic_name" "$alac_filename"
-    rm "$pic_name"
-  fi
+  # Cover (front)
+  pic_name="cover.mjpeg"
+  cover_extractor "$filename" "$pic_name"
+  mp4art --add "$pic_name" "$alac_filename"
+  rm "$pic_name"
 }
 
 # Check requirements
