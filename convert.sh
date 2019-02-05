@@ -28,11 +28,18 @@ usage () {
   echo
 }
 
+###
+#
+# Cover extractor
+#
+###
+
+# Get cover art from music file and save it to image file
 cover_extractor() {
 
   filename="$1"
   pic_name="$2"
-  
+
   ffmpeg -i "$filename" -map 0:$( \
     ffprobe \
       -loglevel quiet \
@@ -95,6 +102,13 @@ alac_convert() {
   mp4art --add "$pic_name" "$alac_filename"
   rm "$pic_name"
 }
+
+
+###
+#
+# Main part of script
+#
+###
 
 # Check requirements
 if [ $(ffmpeg -version) == "" ]; then
