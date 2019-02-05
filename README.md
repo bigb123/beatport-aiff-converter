@@ -7,6 +7,7 @@ Tested on MacOS Mojave 10.14.2
 
 ## Prerequisities
 - ffmpeg
+- jq
 - metaflac - for flac cover art apply
 - mp4v2 (with mp4art command) - for alac cover art apply
 

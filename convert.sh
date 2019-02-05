@@ -29,13 +29,18 @@ usage () {
 }
 
 cover_extractor() {
+
+  filename="$1"
+  pic_name="$2"
+  
   ffmpeg -i "$filename" -map 0:$( \
     ffprobe \
       -loglevel quiet \
       -print_format json \
       -hide_banner \
       -select_streams v \
-      -show_streams "$filename" | jq '.streams[] | if .tags.comment == "Cover (front)" then .index else empty end') "$pic_name"
+      -show_streams "$filename" | jq '.streams[] | if .tags.comment == "Cover (front)" then .index else empty end') \
+      "$pic_name"
 }
 
 ###
@@ -92,27 +97,34 @@ alac_convert() {
 }
 
 # Check requirements
-if [ $(ffmpeg -version &>/dev/null ; echo $?) -ne 0 ]; then
+if [ $(ffmpeg -version) == "" ]; then
   echo "Please install ffmpeg"
   exit 1
 fi
 
+# Check if jq is installed
+if [ $(jq --version) == "" ]; then
+  echo "Please install jq"
+  exit 1
+fi
+
 # Flac requirements
-if [ "flac" == "$CODEC" ] || [ "both" == "$CODEC" ]; then
-  if [ $(metaflac --version &>/dev/null ; echo $? ) -ne 0 ]; then
+if [ "$CODEC" == "flac" ] || [ "$CODEC" == "both" ]; then
+  if [ $(metaflac --version) == "" ]; then
     echo "Please install metaflac"
     exit 1
   fi
 fi
 
 # Alac requirements
-if [ "alac" == "$CODEC" ] || [ "both" == "$CODEC" ]; then
-  if [ $(mp4art --version &>/dev/null ; echo $? ) -ne 0 ]; then
+if [ "$CODEC" == "alac" ] || [ "$CODEC" == "both" ]; then
+  if [ $(mp4art --version) == "" ]; then
     echo "Please install mp4v2"
     exit 1
   fi
 fi
 
+# Help handle
 while getopts "h" optname; do
   case "$optname" in
     "h")
@@ -126,11 +138,11 @@ IFS=$'\n'
 
 for filename in $(find . -name "*.aiff"); do
 
-  if [ "flac" == "$CODEC" ] || [ "both" == "$CODEC" ]; then
+  if [ "$CODEC" == "flac" ] || [ "$CODEC" == "both" ]; then
     flac_convert "$filename"
   fi
 
-  if [ "alac" == "$CODEC" ] || [ "both" == "$CODEC" ]; then
+  if [ "$CODEC" == "alac" ] || [ "$CODEC" == "both" ]; then
     alac_convert "$filename"
   fi
 
