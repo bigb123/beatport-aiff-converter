@@ -24,7 +24,7 @@ usage () {
   echo "converted to alac."
   echo
   echo "Usage:"
-  echo "$0 [flac|alac|both]"
+  echo "$(basename $0) [flac|alac|both]"
   echo
 
   exit 0
