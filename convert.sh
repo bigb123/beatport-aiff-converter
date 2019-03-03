@@ -26,6 +26,8 @@ usage () {
   echo "Usage:"
   echo "$0 [flac|alac|both]"
   echo
+
+  exit 0
 }
 
 ###
@@ -110,6 +112,15 @@ alac_convert() {
 #
 ###
 
+# Help handle
+while getopts "h" optname; do
+  case "$optname" in
+    "h")
+      usage
+    ;;
+  esac
+done
+
 # Check requirements
 if [ $(ffmpeg -version) == "" ]; then
   echo "Please install ffmpeg"
@@ -137,15 +148,6 @@ if [ "$CODEC" == "alac" ] || [ "$CODEC" == "both" ]; then
     exit 1
   fi
 fi
-
-# Help handle
-while getopts "h" optname; do
-  case "$optname" in
-    "h")
-      usage
-    ;;
-  esac
-done
 
 # Each element in the loop is separated by newline rather than blank sign
 IFS=$'\n'
