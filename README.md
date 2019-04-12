@@ -14,10 +14,9 @@ Tested on MacOS Mojave 10.14.2
 On Mac you can install them via brew. On other linuxes use distribution specific package manager.
 
 ## Usage
-Just go to directory with .aiff files and run script.
+Run the script adding path to files to convert after "-d" option.
 ```
 chmod u+x convert.sh
-cd /dir/with/aiffs
-/path/to/convert.sh flac|alac|both
+/path/to/convert.sh -d /dir/with/aiffs [flac|alac|both]
 ```
 It will produce chosen files with cover arts
